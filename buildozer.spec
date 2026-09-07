@@ -50,8 +50,9 @@ android.api = 35
 # CameraX requires >= 21.
 android.minapi = 24
 
-# (str) Stable NDK used by the OpenCV and NumPy recipes.
-android.ndk = 25b
+# (str) NDK version. r28c is what python-for-android recommends and is the
+# one already downloaded/extracted in this machine's buildozer cache.
+android.ndk = 28c
 
 # (str) Android architecture(s).
 # NOTE: CameraX gradle deps are ABI-specific; build matching archs only.
