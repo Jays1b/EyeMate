@@ -70,6 +70,10 @@ jobs:
             echo '```text'
             tail -n 120 buildozer.log 2>/dev/null || true
             echo '```'
+            echo '## Buildozer error markers'
+            echo '```text'
+            grep -Ein 'error|failed|traceback|exception|recipe|command failed' buildozer.log | tail -n 80 || true
+            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload APK artifact

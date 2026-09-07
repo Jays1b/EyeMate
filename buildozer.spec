@@ -43,12 +43,15 @@ p4a.hook = camerax_provider
 # (str) Android permissions
 android.permissions = CAMERA, RECORD_AUDIO
 
-# (int) Android API level to target
-android.api = 33
+# (int) Android API level to target. Pin this instead of using the runner default.
+android.api = 35
 
 # (int) Minimum API level. numpy (and its build recipes) require >= 24;
 # CameraX requires >= 21.
 android.minapi = 24
+
+# (str) Stable NDK used by the OpenCV and NumPy recipes.
+android.ndk = 25b
 
 # (str) Android architecture(s).
 # NOTE: CameraX gradle deps are ABI-specific; build matching archs only.
