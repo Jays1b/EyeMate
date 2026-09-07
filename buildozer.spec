@@ -17,6 +17,7 @@ source.dir = .
 
 # (list) Source files to include (relative to source.dir)
 source.include_exts = py, kv, txt, tflite, onnx, ini, png, jpg
+source.exclude_dirs = .git, .buildozer, _wsl_staging, .idea, bin, build, dist, tests, scripts, drgo-minebot
 
 # (list) Application requirements
 # Camera4Kivy needs the 'master' Buildozer (>=1.2.0.dev0):
@@ -45,8 +46,9 @@ android.permissions = CAMERA, RECORD_AUDIO
 # (int) Android API level to target
 android.api = 33
 
-# (int) Minimum API level (CameraX requires >= 21)
-android.minapi = 21
+# (int) Minimum API level. numpy (and its build recipes) require >= 24;
+# CameraX requires >= 21.
+android.minapi = 24
 
 # (str) Android architecture(s).
 # NOTE: CameraX gradle deps are ABI-specific; build matching archs only.
@@ -93,3 +95,7 @@ presplash.filename = %(source.dir)s/assets/presplash.png
 
 # (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
 log_level = 2
+
+# (int) Building as root inside WSL is fine here; suppress the interactive warning
+# that would otherwise stop unattended builds.
+warn_on_root = 0

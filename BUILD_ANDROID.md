@@ -64,5 +64,7 @@ adb install -r bin\eyemate-0.1-*-arm64-v8a*.apk
   does not bundle, so the Android build reports that OCR is unavailable.
   Detection, QR/barcode reading, object (YOLO) detection and all voice/UI
   features do work.
+- The APK source is the repository root. `_wsl_staging`, IDE files, tests,
+   build caches, and unrelated folders are excluded by `buildozer.spec`.
 - Camera preview is opened only when reaching a camera-connected screen; you
-  may need to tap the shutter/auto modes to wake the Android `Camera`.
+   may need to tap the shutter/auto modes to wake the Android `Camera`.

@@ -8,3 +8,10 @@ dist/
 *.apk
 .kivy/
 keystore/
+.buildozer/
+_wsl_staging/
+.idea/
+*.vsix
+%SystemDrive%/
+drgo-minebot/
+EyeMate-debug-source.zip
