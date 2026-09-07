@@ -145,6 +145,7 @@ class STTEngine:
         self.on_android = _ON_ANDROID
 
     def start(self, callback) -> None:
+        self.stop()
         self._callback = callback
         if _ON_ANDROID:  # pragma: no cover
             self._listener = SpeechRecognizerListener(callback)

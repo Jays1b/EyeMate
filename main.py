@@ -76,6 +76,9 @@ class CameraPreview(Widget):
         self._lock = threading.Lock()
         self._continuous = False
         self._desktop_running = False
+        self._texture_event = None
+        self._continuous_event = None
+        self._connect_event = None
 
     # ---- frame sharing (both platforms) ----
     def grab(self):
@@ -88,6 +91,8 @@ class CameraPreview(Widget):
 
     # ---- lifecycle ----
     def start(self):
+        if self._desktop_running or self._pv is not None:
+            return
         if IS_ANDROID:
             self._start_android()
         else:
@@ -95,12 +100,19 @@ class CameraPreview(Widget):
 
     def stop(self):
         self._desktop_running = False
+        self._continuous = False
+        for event_name in ("_texture_event", "_continuous_event", "_connect_event"):
+            event = getattr(self, event_name)
+            if event is not None:
+                event.cancel()
+                setattr(self, event_name, None)
         if IS_ANDROID:
             if self._pv is not None:
                 try:
-                    Clock.schedule_once(lambda dt: self._disconnect_android(), 0)
+                    self._disconnect_android()
                 except Exception:
                     pass
+                self._pv = None
         if self.cap is not None:
             try:
                 self.cap.release()
@@ -116,8 +128,8 @@ class CameraPreview(Widget):
             return
         self._desktop_running = True
         threading.Thread(target=self._read_loop_desktop, daemon=True).start()
-        Clock.schedule_interval(self._pump_texture, 1.0 / 20.0)
-        Clock.schedule_interval(self._maybe_continuous, 4.0)
+        self._texture_event = Clock.schedule_interval(self._pump_texture, 1.0 / 20.0)
+        self._continuous_event = Clock.schedule_interval(self._maybe_continuous, 4.0)
 
     def _announce_no_camera(self):
         app = App.get_running_app()
@@ -126,8 +138,14 @@ class CameraPreview(Widget):
                 "Camera is not available. Use the buttons to try each feature."), 1.0)
 
     def _read_loop_desktop(self):
+        cap = self.cap
         while self._desktop_running:
-            ok, frame = self.cap.read()
+            if cap is None:
+                return
+            try:
+                ok, frame = cap.read()
+            except Exception:
+                return
             if not ok:
                 continue
             self._set_latest(frame)
@@ -161,8 +179,8 @@ class CameraPreview(Widget):
         self._pv = Preview(aspect_ratio="16:9")
         self._pv.analyze_imageproxy_callback = self._on_android_image
         self.add_widget(self._pv)
-        Clock.schedule_once(lambda dt: self._connect_android(), 0.5)
-        Clock.schedule_interval(self._maybe_continuous, 4.0)
+        self._connect_event = Clock.schedule_once(lambda dt: self._connect_android(), 0.5)
+        self._continuous_event = Clock.schedule_interval(self._maybe_continuous, 4.0)
 
     def _connect_android(self):  # pragma: no cover
         try:
@@ -202,9 +220,8 @@ def _guarded(fn):
     """Serialize actions so inference never races with itself."""
 
     def wrapper(self, *a, **k):
-        if self._busy.locked():
+        if not self._busy.acquire(blocking=False):
             return
-        self._busy.acquire()
         try:
             fn(self, *a, **k)
         finally:
