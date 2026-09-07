@@ -9,8 +9,17 @@ on:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
 
       - name: Install Linux build dependencies
         run: |
@@ -21,7 +30,7 @@ jobs:
             cmake libffi-dev libssl-dev
 
       - name: Cache python-for-android / buildozer
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.buildozer
           key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
@@ -30,8 +39,8 @@ jobs:
 
       - name: Install master buildozer (needed by Camera4Kivy)
         run: |
-          pip3 install --upgrade pip setuptools
-          pip3 install git+https://github.com/kivy/buildozer.git
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install git+https://github.com/kivy/buildozer.git
 
       - name: Clone camerax_provider hook
         run: |
@@ -41,20 +50,20 @@ jobs:
         run: |
           set -o pipefail
           export ANDROID_HOME="$HOME/.buildozer/android/platform/android-sdk"
-          buildozer -v android debug 2>&1 | tee buildozer.log
+          python -m buildozer -v android debug 2>&1 | tee buildozer.log
         env:
           BUILDKITE_ANALYTICS_TOKEN: ""
 
       - name: Upload Buildozer log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: EyeMate-build-log
           path: buildozer.log
           if-no-files-found: warn
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: EyeMate-debug-apk
           path: bin/*.apk
