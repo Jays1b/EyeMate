@@ -35,7 +35,7 @@ jobs:
 
       - name: Clone camerax_provider hook
         run: |
-          git clone --depth 1 https://github.com/inclement/camerax_provider.git
+          git clone --depth 1 https://github.com/Android-for-Python/camerax_provider.git
 
       - name: Build debug APK
         run: |
