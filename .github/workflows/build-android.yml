@@ -56,14 +56,24 @@ jobs:
 
       - name: Upload Buildozer log
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: EyeMate-build-log
           path: buildozer.log
           if-no-files-found: warn
 
+      - name: Show Buildozer failure summary
+        if: always()
+        run: |
+          {
+            echo '## Buildozer output (last 120 lines)'
+            echo '```text'
+            tail -n 120 buildozer.log 2>/dev/null || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: EyeMate-debug-apk
           path: bin/*.apk
