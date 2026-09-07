@@ -1,0 +1,6 @@
+kivy>=2.3.0
+opencv-python>=4.9.0
+numpy>=1.26.0
+pytest>=8.0.0
+ai-edge-litert>=2.2.0
+pytesseract>=0.3.10
